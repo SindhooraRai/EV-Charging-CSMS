@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Environment Variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Python Testing
+.pytest_cache/
+
+# Python Type Checker
+.mypy_cache/
+
+# Build
+build/
+dist/
+
+# Logs
+*.log
+
+# Alembic
+alembic/versions/*.pyc
