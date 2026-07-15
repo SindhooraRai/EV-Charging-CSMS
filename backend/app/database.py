@@ -11,7 +11,11 @@ engine = create_async_engine(
     future=True,
     pool_size=10,
     max_overflow=20,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0
+    }
 )
 
 # Create session generator

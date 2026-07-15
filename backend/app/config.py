@@ -34,7 +34,7 @@ class Settings:
         """
         import urllib.parse
         # URL encode password to handle special characters (e.g. spaces/quotes in Supabase env)
-        encoded_password = urllib.parse.quote_plus(self.DB_PASSWORD)
+        encoded_password = urllib.parse.quote(self.DB_PASSWORD)
         return f"postgresql+asyncpg://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     # Server CORS Configuration
