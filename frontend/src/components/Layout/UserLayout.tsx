@@ -103,10 +103,24 @@ export default function UserLayout() {
 
                         <Link to="/user/profile" className="flex items-center gap-2 group">
                             <div className="h-8 w-8 rounded-full bg-primary/20 border border-primary/45 grid place-items-center text-primary text-xs font-bold font-[family-name:var(--font-display)]">
-                                JD
+                                {(() => {
+                                    const userStr = localStorage.getItem("user");
+                                    const user = userStr ? JSON.parse(userStr) : null;
+                                    const name = user?.name || "Default User";
+                                    return name
+                                        .split(" ")
+                                        .map((n: string) => n[0])
+                                        .join("")
+                                        .toUpperCase()
+                                        .slice(0, 2) || "U";
+                                })()}
                             </div>
                             <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors max-sm:hidden">
-                                John Doe
+                                {(() => {
+                                    const userStr = localStorage.getItem("user");
+                                    const user = userStr ? JSON.parse(userStr) : null;
+                                    return user?.name || "Default User";
+                                })()}
                             </span>
                         </Link>
                     </div>

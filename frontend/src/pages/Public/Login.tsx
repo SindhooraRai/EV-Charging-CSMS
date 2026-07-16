@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Zap, Mail, Lock, LogIn } from "lucide-react";
 
 export default function Login() {
@@ -8,6 +8,7 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +37,12 @@ export default function Login() {
 
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("role", data.role);
-            localStorage.setItem("user", JSON.stringify({ email, role: data.role }));
+            localStorage.setItem("user", JSON.stringify({
+                name: data.name,
+                email,
+                phone: data.phone,
+                role: data.role
+            }));
 
             if (data.role === "admin") {
                 navigate("/admin/dashboard");
@@ -71,6 +77,11 @@ export default function Login() {
                 {error && (
                     <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-sm text-center">
                         {error}
+                    </div>
+                )}
+                {location.state?.registered && (
+                    <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-xl text-sm text-center font-medium">
+                        Account created successfully! Please sign in.
                     </div>
                 )}
             </div>

@@ -34,7 +34,9 @@ class AuthService:
                     if hashed_pw and verify_password(password_plain, hashed_pw):
                         return {
                             "id": getattr(user_obj, "id", None),
+                            "name": getattr(user_obj, "name", None),
                             "email": getattr(user_obj, "email", None),
+                            "phone": getattr(user_obj, "phone", None),
                             "role": getattr(user_obj, "role", "user"),
                             "is_active": getattr(user_obj, "is_active", True)
                         }
@@ -50,7 +52,9 @@ class AuthService:
                 if hashed_pw and verify_password(password_plain, hashed_pw):
                     return {
                         "id": row.get("id"),
+                        "name": row.get("name"),
                         "email": row.get("email"),
+                        "phone": row.get("phone"),
                         "role": row.get("role", "user"),
                         "is_active": row.get("is_active", True)
                     }
@@ -86,7 +90,9 @@ class AuthService:
             "token_type": "bearer",
             "user": {
                 "id": user.get("id"),
+                "name": user.get("name"),
                 "email": user["email"],
+                "phone": user.get("phone"),
                 "role": user.get("role", "user")
             }
         }
@@ -120,7 +126,9 @@ class AuthService:
                 if user_obj:
                     return {
                         "id": getattr(user_obj, "id", None),
+                        "name": getattr(user_obj, "name", None),
                         "email": getattr(user_obj, "email", None),
+                        "phone": getattr(user_obj, "phone", None),
                         "role": getattr(user_obj, "role", "user"),
                         "is_active": getattr(user_obj, "is_active", True)
                     }
@@ -129,10 +137,10 @@ class AuthService:
 
             # Fallback raw SQL query
             if user_id.isdigit():
-                query = text("SELECT id, email, role, is_active FROM users WHERE id = :id")
+                query = text("SELECT id, name, email, phone, role, is_active FROM users WHERE id = :id")
                 params = {"id": int(user_id)}
             else:
-                query = text("SELECT id, email, role, is_active FROM users WHERE email = :email")
+                query = text("SELECT id, name, email, phone, role, is_active FROM users WHERE email = :email")
                 params = {"email": user_id}
 
             result = await db.execute(query, params)
@@ -140,7 +148,9 @@ class AuthService:
             if row:
                 return {
                     "id": row.get("id"),
+                    "name": row.get("name"),
                     "email": row.get("email"),
+                    "phone": row.get("phone"),
                     "role": row.get("role", "user"),
                     "is_active": row.get("is_active", True)
                 }
@@ -151,4 +161,41 @@ class AuthService:
             logger.warning(f"Error fetching current user from database: {e}")
 
         return None
+
+    @staticmethod
+    async def register_user(
+        db: AsyncSession,
+        name: str,
+        email: str,
+        password_plain: str,
+        phone: str,
+        role: str = "user"
+    ) -> Any:
+        """
+        Registers a new user inside the database after hashing their password.
+        """
+        from models.user import User
+        from sqlalchemy.future import select
+        from utils.security import get_password_hash
+
+        # Check if email already registered
+        stmt = select(User).where(User.email == email)
+        result = await db.execute(stmt)
+        if result.scalars().first():
+            return None
+
+        # Hash credentials and persist
+        hashed_password = get_password_hash(password_plain)
+        new_user = User(
+            name=name,
+            email=email,
+            password=hashed_password,
+            phone=phone,
+            role=role
+        )
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
+        return new_user
 

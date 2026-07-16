@@ -5,10 +5,14 @@ export default function RFIDCard() {
     const [isLocked, setIsLocked] = useState(false);
     const [showNumber, setShowNumber] = useState(false);
 
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
+    const holderName = user?.name || "John Doe";
+
     const cardData = {
         id: "VOLT-9827-X1",
         rawUid: "04:6A:B2:8E:5C:30:91",
-        holder: "John Doe",
+        holder: holderName,
         registeredOn: "Jul 10, 2026",
         walletBalance: "$42.50"
     };
@@ -45,8 +49,8 @@ export default function RFIDCard() {
                                 <span className="text-xs font-semibold text-primary mt-0.5">RFID NFC Token</span>
                             </div>
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border ${isLocked
-                                    ? "bg-red-500/10 text-red-400 border-red-500/20"
-                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                ? "bg-red-500/10 text-red-400 border-red-500/20"
+                                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                                 }`}>
                                 {isLocked ? "Locked" : "Active"}
                             </span>
@@ -81,8 +85,8 @@ export default function RFIDCard() {
                         <button
                             onClick={() => setIsLocked(!isLocked)}
                             className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl border text-sm font-semibold transition-all ${isLocked
-                                    ? "bg-emerald-500/10 text-emerald-450 border-emerald-500/20 hover:bg-emerald-500/25"
-                                    : "bg-red-500/10 text-red-450 border-red-500/20 hover:bg-red-500/25"
+                                ? "bg-emerald-500/10 text-emerald-450 border-emerald-500/20 hover:bg-emerald-500/25"
+                                : "bg-red-500/10 text-red-450 border-red-500/20 hover:bg-red-500/25"
                                 }`}
                         >
                             {isLocked ? (

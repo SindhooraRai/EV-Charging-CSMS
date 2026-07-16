@@ -1,24 +1,59 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Zap, User, Mail, Lock, Check } from "lucide-react";
+import { Zap, User, Mail, Lock, Check, Phone } from "lucide-react";
 
 export default function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [isAgreed, setIsAgreed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isAgreed) return;
         setIsLoading(true);
+        setError(null);
 
-        setTimeout(() => {
+        try {
+            const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+            const response = await fetch(`${apiBase}/auth/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    phone,
+                    password,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                let errMsg = "Registration failed. Check your fields or try again.";
+                if (errorData.detail) {
+                    if (Array.isArray(errorData.detail)) {
+                        errMsg = errorData.detail
+                            .map((err: any) => `${err.loc[err.loc.length - 1]}: ${err.msg}`)
+                            .join(", ");
+                    } else if (typeof errorData.detail === "string") {
+                        errMsg = errorData.detail;
+                    }
+                }
+                throw new Error(errMsg);
+            }
+
+            // Redirect to login page upon successful database registration
+            navigate("/login", { state: { registered: true } });
+        } catch (err: any) {
+            setError(err.message || "Failed to connect to the registration service");
             setIsLoading(false);
-            navigate("/user/dashboard");
-        }, 1000);
+        }
     };
 
     return (
@@ -43,6 +78,13 @@ export default function Register() {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-card border border-border py-8 px-6 shadow-2xl rounded-2xl sm:px-10">
+                    {error && (
+                        <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium flex items-center gap-3">
+                            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                            {error}
+                        </div>
+                    )}
+
                     <form className="space-y-6" onSubmit={handleRegister}>
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-muted-foreground">
@@ -56,6 +98,8 @@ export default function Register() {
                                     id="name"
                                     type="text"
                                     required
+                                    minLength={2}
+                                    maxLength={100}
                                     placeholder="John Doe"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
@@ -85,6 +129,29 @@ export default function Register() {
                         </div>
 
                         <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-muted-foreground">
+                                Phone Number
+                            </label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">
+                                    <Phone className="h-4 w-4" />
+                                </div>
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    required
+                                    minLength={10}
+                                    maxLength={15}
+                                    pattern="[0-9]+"
+                                    placeholder="9876543210"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="block w-full pl-10 pr-3 py-3 border border-border bg-muted/30 rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
                             <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
                                 Password
                             </label>
@@ -96,6 +163,7 @@ export default function Register() {
                                     id="password"
                                     type="password"
                                     required
+                                    minLength={8}
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}

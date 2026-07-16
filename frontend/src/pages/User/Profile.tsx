@@ -2,14 +2,28 @@ import React, { useState } from "react";
 import { User, Mail, Phone, Car, Check, ShieldCheck } from "lucide-react";
 
 export default function Profile() {
-    const [name, setName] = useState("John Doe");
-    const [email, setEmail] = useState("driver@voltgrid.com");
-    const [phone, setPhone] = useState("+91 98765 43210");
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    const [name, setName] = useState(user?.name || "John Doe");
+    const [email, setEmail] = useState(user?.email || "driver@voltgrid.com");
+    const [phone, setPhone] = useState(user?.phone || "+91 98765 43210");
     const [vehicle, setVehicle] = useState("Nissan Leaf e+ (62 kWh)");
     const [isSaved, setIsSaved] = useState(false);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
+        const userStrVal = localStorage.getItem("user");
+        if (userStrVal) {
+            const userObj = JSON.parse(userStrVal);
+            localStorage.setItem("user", JSON.stringify({
+                ...userObj,
+                name,
+                phone
+            }));
+            // Trigger storage event so other components receive the update immediately
+            window.dispatchEvent(new Event("storage"));
+        }
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2000);
     };
@@ -25,7 +39,12 @@ export default function Profile() {
                 <form onSubmit={handleSave} className="space-y-6">
                     <div className="flex items-center gap-4 border-b border-border pb-6">
                         <div className="h-16 w-16 bg-primary/10 border border-primary/25 rounded-full grid place-items-center text-primary text-xl font-bold font-[family-name:var(--font-display)]">
-                            JD
+                            {name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .toUpperCase()
+                                .slice(0, 2) || "U"}
                         </div>
                         <div>
                             <h3 className="font-bold text-lg leading-none">{name}</h3>
