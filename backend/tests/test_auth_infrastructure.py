@@ -149,6 +149,9 @@ class TestAuthService(unittest.IsolatedAsyncioTestCase):
             "is_active": True
         }
         mock_result.mappings.return_value = mock_mapping
+        mock_scalars = MagicMock()
+        mock_scalars.first.return_value = None
+        mock_result.scalars.return_value = mock_scalars
         mock_db.execute.return_value = mock_result
         
         # Generate token first

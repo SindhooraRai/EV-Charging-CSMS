@@ -1,26 +1,53 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Zap, Mail, Lock, LogIn, ArrowRight } from "lucide-react";
+import { Zap, Mail, Lock, LogIn } from "lucide-react";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent, role?: "user" | "admin") => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setError(null);
 
-        // Simulating API latency
-        setTimeout(() => {
-            setIsLoading(false);
-            if (role === "admin") {
+        try {
+            const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+            const response = await fetch(`${apiBase}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Invalid email or password");
+            }
+
+            const data = await response.json();
+
+            localStorage.setItem("token", data.access_token);
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("user", JSON.stringify({ email, role: data.role }));
+
+            if (data.role === "admin") {
                 navigate("/admin/dashboard");
             } else {
                 navigate("/user/dashboard");
             }
-        }, 800);
+        } catch (err: any) {
+            setError(err.message || "Failed to connect to the login service");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -41,11 +68,16 @@ export default function Login() {
                         create a new network account
                     </Link>
                 </p>
+                {error && (
+                    <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-sm text-center">
+                        {error}
+                    </div>
+                )}
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-card border border-border py-8 px-6 shadow-2xl rounded-2xl sm:px-10">
-                    <form className="space-y-6" onSubmit={(e) => handleLogin(e, "user")}>
+                    <form className="space-y-6" onSubmit={(e) => handleLogin(e)}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-muted-foreground">
                                 Email address
@@ -118,29 +150,6 @@ export default function Login() {
                             </button>
                         </div>
                     </form>
-
-                    {/* Quick Sandbox Login Buttons */}
-                    <div className="mt-8 border-t border-border pt-6">
-                        <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center mb-4">
-                            Demo Gateways
-                        </span>
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                onClick={(e) => handleLogin(e, "user")}
-                                className="flex items-center justify-center gap-2 py-2.5 px-4 border border-border bg-muted/20 hover:bg-muted/50 rounded-xl text-sm font-semibold transition-all hover:border-primary/40 group"
-                            >
-                                Driver Portal
-                                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <button
-                                onClick={(e) => handleLogin(e, "admin")}
-                                className="flex items-center justify-center gap-2 py-2.5 px-4 border border-border bg-emerald-500/10 text-emerald-450 hover:bg-emerald-500/20 rounded-xl text-sm font-semibold transition-all hover:border-emerald-500/40 group"
-                            >
-                                Admin Panel
-                                <ArrowRight className="h-3.5 w-3.5 text-emerald-550 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

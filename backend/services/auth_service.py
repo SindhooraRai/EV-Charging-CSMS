@@ -29,8 +29,8 @@ class AuthService:
                 result = await db.execute(stmt)
                 user_obj = result.scalars().first()
                 if user_obj:
-                    # support dynamic field names (e.g. hashed_password or password_hash)
-                    hashed_pw = getattr(user_obj, "hashed_password", None) or getattr(user_obj, "password_hash", None)
+                    # support dynamic field names (e.g. hashed_password, password_hash, or password)
+                    hashed_pw = getattr(user_obj, "hashed_password", None) or getattr(user_obj, "password_hash", None) or getattr(user_obj, "password", None)
                     if hashed_pw and verify_password(password_plain, hashed_pw):
                         return {
                             "id": getattr(user_obj, "id", None),
@@ -42,11 +42,11 @@ class AuthService:
                 pass
 
             # Fallback raw SQL query
-            query = text("SELECT id, email, hashed_password, role, is_active FROM users WHERE email = :email")
+            query = text("SELECT * FROM users WHERE email = :email")
             result = await db.execute(query, {"email": email})
             row = result.mappings().first()
             if row:
-                hashed_pw = row.get("hashed_password") or row.get("password_hash")
+                hashed_pw = row.get("hashed_password") or row.get("password_hash") or row.get("password")
                 if hashed_pw and verify_password(password_plain, hashed_pw):
                     return {
                         "id": row.get("id"),
