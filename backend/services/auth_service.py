@@ -37,6 +37,7 @@ class AuthService:
                             "name": getattr(user_obj, "name", None),
                             "email": getattr(user_obj, "email", None),
                             "phone": getattr(user_obj, "phone", None),
+                            "vehicle": getattr(user_obj, "vehicle", None),
                             "role": getattr(user_obj, "role", "user"),
                             "is_active": getattr(user_obj, "is_active", True)
                         }
@@ -55,6 +56,7 @@ class AuthService:
                         "name": row.get("name"),
                         "email": row.get("email"),
                         "phone": row.get("phone"),
+                        "vehicle": row.get("vehicle"),
                         "role": row.get("role", "user"),
                         "is_active": row.get("is_active", True)
                     }
@@ -93,6 +95,7 @@ class AuthService:
                 "name": user.get("name"),
                 "email": user["email"],
                 "phone": user.get("phone"),
+                "vehicle": user.get("vehicle"),
                 "role": user.get("role", "user")
             }
         }
@@ -129,6 +132,7 @@ class AuthService:
                         "name": getattr(user_obj, "name", None),
                         "email": getattr(user_obj, "email", None),
                         "phone": getattr(user_obj, "phone", None),
+                        "vehicle": getattr(user_obj, "vehicle", None),
                         "role": getattr(user_obj, "role", "user"),
                         "is_active": getattr(user_obj, "is_active", True)
                     }
@@ -137,10 +141,10 @@ class AuthService:
 
             # Fallback raw SQL query
             if user_id.isdigit():
-                query = text("SELECT id, name, email, phone, role, is_active FROM users WHERE id = :id")
+                query = text("SELECT id, name, email, phone, vehicle, role, is_active FROM users WHERE id = :id")
                 params = {"id": int(user_id)}
             else:
-                query = text("SELECT id, name, email, phone, role, is_active FROM users WHERE email = :email")
+                query = text("SELECT id, name, email, phone, vehicle, role, is_active FROM users WHERE email = :email")
                 params = {"email": user_id}
 
             result = await db.execute(query, params)
@@ -151,6 +155,7 @@ class AuthService:
                     "name": row.get("name"),
                     "email": row.get("email"),
                     "phone": row.get("phone"),
+                    "vehicle": row.get("vehicle"),
                     "role": row.get("role", "user"),
                     "is_active": row.get("is_active", True)
                 }
@@ -169,6 +174,7 @@ class AuthService:
         email: str,
         password_plain: str,
         phone: str,
+        vehicle: Optional[str] = None,
         role: str = "user"
     ) -> Any:
         """
@@ -191,6 +197,7 @@ class AuthService:
             email=email,
             password=hashed_password,
             phone=phone,
+            vehicle=vehicle,
             role=role
         )
         db.add(new_user)

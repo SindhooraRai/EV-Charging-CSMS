@@ -27,7 +27,8 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
         name=data.name,
         email=data.email,
         password_plain=data.password,
-        phone=data.phone
+        phone=data.phone,
+        vehicle=data.vehicle
     )
     if not new_user:
         raise HTTPException(
@@ -59,5 +60,6 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
         token_type=login_data["token_type"],
         role=login_data["user"]["role"],
         name=login_data["user"].get("name") or "",
-        phone=login_data["user"].get("phone") or ""
+        phone=login_data["user"].get("phone") or "",
+        vehicle=login_data["user"].get("vehicle")
     )

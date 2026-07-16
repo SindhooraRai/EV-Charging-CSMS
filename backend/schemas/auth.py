@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
@@ -12,3 +13,4 @@ class TokenResponse(BaseModel):
     role: str
     name: str
     phone: str
+    vehicle: Optional[str] = None

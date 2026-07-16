@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import (
     Integer,
     String,
@@ -41,6 +42,11 @@ class User(Base):
     password: Mapped[str] = mapped_column(
         String(255),
         nullable=False
+    )
+
+    vehicle: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True
     )
 
     role: Mapped[str] = mapped_column(

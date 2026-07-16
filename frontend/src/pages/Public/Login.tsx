@@ -41,6 +41,7 @@ export default function Login() {
                 name: data.name,
                 email,
                 phone: data.phone,
+                vehicle: data.vehicle,
                 role: data.role
             }));
 

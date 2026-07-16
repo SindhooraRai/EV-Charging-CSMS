@@ -20,6 +20,40 @@ import {
 } from "recharts";
 
 export default function UserDashboard() {
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
+    const firstName = user?.name ? user.name.split(" ")[0] : "Driver";
+
+    // Helper to parse vehicle string format
+    const parseVehicle = (vehicleStr: string) => {
+        if (!vehicleStr) return { brand: "Nissan", model: "Leaf", variant: "e+", capacity: "62" };
+        if (vehicleStr.includes(":")) {
+            const parts = vehicleStr.split(":").map(s => s.trim());
+            return {
+                brand: parts[0] || "",
+                model: parts[1] || "",
+                variant: parts[2] || "",
+                capacity: parts[3] || ""
+            };
+        } else {
+            const match = vehicleStr.match(/^([^\s]+)\s+([^\s]+)\s+([^\(]+)(?:\((\d+)(?:\s*kWh)?\))?/i);
+            if (match) {
+                return {
+                    brand: match[1] || "",
+                    model: match[2] || "",
+                    variant: match[3]?.trim() || "",
+                    capacity: match[4] || ""
+                };
+            }
+            return { brand: vehicleStr, model: "", variant: "", capacity: "" };
+        }
+    };
+
+    const vehicleInfo = parseVehicle(user?.vehicle);
+    const vehicleDisplay = vehicleInfo.brand || vehicleInfo.model
+        ? `${vehicleInfo.brand} ${vehicleInfo.model}`.trim()
+        : "EV";
+
     // Mock Data for session history chart
     const data = [
         { date: "Jul 08", energy: 12 },
@@ -42,8 +76,8 @@ export default function UserDashboard() {
             {/* Welcome header */}
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Welcome back, John!</h1>
-                    <p className="text-muted-foreground text-sm">Your Nissan Leaf is configured and healthy.</p>
+                    <h1 className="text-2xl font-bold tracking-tight">Welcome back, {firstName}!</h1>
+                    <p className="text-muted-foreground text-sm">Your {vehicleDisplay} is configured and healthy.</p>
                 </div>
                 <div className="flex gap-3">
                     <Link to="/user/nearby" className="flex items-center gap-2 px-4 py-2 border border-border bg-card hover:bg-muted rounded-xl text-sm font-semibold transition-all">

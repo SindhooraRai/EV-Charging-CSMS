@@ -5,21 +5,55 @@ export default function Profile() {
     const userStr = localStorage.getItem("user");
     const user = userStr ? JSON.parse(userStr) : null;
 
+    // Helper to parse vehicle string format
+    const parseVehicle = (vehicleStr: string) => {
+        if (!vehicleStr) return { brand: "Nissan", model: "Leaf", variant: "e+", capacity: "62" };
+        if (vehicleStr.includes(":")) {
+            const parts = vehicleStr.split(":").map(s => s.trim());
+            return {
+                brand: parts[0] || "",
+                model: parts[1] || "",
+                variant: parts[2] || "",
+                capacity: parts[3] || ""
+            };
+        } else {
+            const match = vehicleStr.match(/^([^\s]+)\s+([^\s]+)\s+([^\(]+)(?:\((\d+)(?:\s*kWh)?\))?/i);
+            if (match) {
+                return {
+                    brand: match[1] || "",
+                    model: match[2] || "",
+                    variant: match[3]?.trim() || "",
+                    capacity: match[4] || ""
+                };
+            }
+            return { brand: vehicleStr, model: "", variant: "", capacity: "" };
+        }
+    };
+
+    const initialVehicle = parseVehicle(user?.vehicle || "Nissan Leaf e+ (62 kWh)");
+
     const [name, setName] = useState(user?.name || "John Doe");
     const [email, setEmail] = useState(user?.email || "driver@voltgrid.com");
     const [phone, setPhone] = useState(user?.phone || "+91 98765 43210");
-    const [vehicle, setVehicle] = useState("Nissan Leaf e+ (62 kWh)");
+
+    // Separate states for vehicle specifications
+    const [brand, setBrand] = useState(initialVehicle.brand);
+    const [model, setModel] = useState(initialVehicle.model);
+    const [variant, setVariant] = useState(initialVehicle.variant);
+    const [capacity, setCapacity] = useState(initialVehicle.capacity);
     const [isSaved, setIsSaved] = useState(false);
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
+        const vehicleStr = `${brand.trim()}: ${model.trim()}: ${variant.trim()}: ${capacity.toString().trim()}`;
         const userStrVal = localStorage.getItem("user");
         if (userStrVal) {
             const userObj = JSON.parse(userStrVal);
             localStorage.setItem("user", JSON.stringify({
                 ...userObj,
                 name,
-                phone
+                phone,
+                vehicle: vehicleStr
             }));
             // Trigger storage event so other components receive the update immediately
             window.dispatchEvent(new Event("storage"));
@@ -89,15 +123,52 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Registered EV Model</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={vehicle}
-                                    onChange={(e) => setVehicle(e.target.value)}
-                                    className="w-full bg-muted/20 border border-border rounded-xl py-3 pl-4 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold"
-                                />
+                        <div className="sm:col-span-2 mt-2">
+                            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Registered EV Model Details</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/10 p-4 rounded-xl border border-border/80">
+                                <div>
+                                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Brand</label>
+                                    <input
+                                        type="text"
+                                        value={brand}
+                                        onChange={(e) => setBrand(e.target.value)}
+                                        placeholder="e.g. Nissan"
+                                        className="w-full bg-muted/20 border border-border rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold text-foreground"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Model</label>
+                                    <input
+                                        type="text"
+                                        value={model}
+                                        onChange={(e) => setModel(e.target.value)}
+                                        placeholder="e.g. Leaf"
+                                        className="w-full bg-muted/20 border border-border rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold text-foreground"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Variant</label>
+                                    <input
+                                        type="text"
+                                        value={variant}
+                                        onChange={(e) => setVariant(e.target.value)}
+                                        placeholder="e.g. e+"
+                                        className="w-full bg-muted/20 border border-border rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold text-foreground"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Capacity (kWh)</label>
+                                    <input
+                                        type="number"
+                                        value={capacity}
+                                        onChange={(e) => setCapacity(e.target.value)}
+                                        placeholder="e.g. 62"
+                                        className="w-full bg-muted/20 border border-border rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold text-foreground"
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
