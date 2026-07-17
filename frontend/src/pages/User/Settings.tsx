@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Settings as SettingsIcon, Bell, DollarSign, Navigation, Shield, ShieldCheck } from "lucide-react";
+import { Settings as SettingsIcon, Bell, IndianRupee, Navigation, Shield, ShieldCheck, Smartphone } from "lucide-react";
 
 export default function UserSettings() {
     const [emailAlerts, setEmailAlerts] = useState(true);
     const [smsAlerts, setSmsAlerts] = useState(false);
     const [autoRefill, setAutoRefill] = useState(true);
-    const [refillAmount, setRefillAmount] = useState("$25.00");
+    const [refillAmount, setRefillAmount] = useState("₹2,500.00");
     const [mapProvider, setMapProvider] = useState("google");
 
     return (
@@ -52,13 +52,13 @@ export default function UserSettings() {
                 {/* Payment Config */}
                 <div className="space-y-4 pt-2">
                     <h3 className="font-bold text-base flex items-center gap-2 pb-2 border-b border-border">
-                        <DollarSign className="h-4.5 w-4.5 text-primary" /> Wallet & Billing
+                        <IndianRupee className="h-4.5 w-4.5 text-primary" /> Wallet & Billing
                     </h3>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
                             <div>
                                 <span className="block text-sm font-semibold">Enable Automated Refills</span>
-                                <span className="text-xs text-muted-foreground">Automatically recharge wallet when balance falls below $10.00.</span>
+                                <span className="text-xs text-muted-foreground">Automatically recharge wallet when balance falls below ₹500.00.</span>
                             </div>
                             <input
                                 type="checkbox"
@@ -75,18 +75,69 @@ export default function UserSettings() {
                                     onChange={(e) => setRefillAmount(e.target.value)}
                                     className="bg-muted border border-border text-sm rounded-lg p-2 focus:ring-1 focus:ring-primary"
                                 >
-                                    <option value="$10.00">$10.00</option>
-                                    <option value="$25.00">$25.00</option>
-                                    <option value="$50.00">$50.00</option>
-                                    <option value="$100.00">$100.00</option>
+                                    <option value="₹1,000.00">₹1,000.00</option>
+                                    <option value="₹2,500.00">₹2,500.00</option>
+                                    <option value="₹5,000.00">₹5,000.00</option>
+                                    <option value="₹10,000.00">₹10,000.00</option>
                                 </select>
                             </div>
                         )}
                     </div>
                 </div>
 
+                {/* Security Config */}
+                <div className="space-y-4 pt-2 border-t border-border mt-4">
+                    <h3 className="font-bold text-base flex items-center gap-2 pb-2 border-b border-border">
+                        <ShieldCheck className="h-4.5 w-4.5 text-primary" /> Security
+                    </h3>
+                    <div className="space-y-4">
+                        {/* Password */}
+                        <div className="flex justify-between items-center bg-muted/10 p-3.5 rounded-xl border border-border/40">
+                            <div>
+                                <span className="block text-sm font-semibold">Password</span>
+                                <span className="text-xs text-muted-foreground">••••••••</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => alert("Password change simulated.")}
+                                className="px-3.5 py-1.5 bg-muted hover:bg-muted/70 text-xs font-semibold rounded-lg border border-border text-foreground transition-all cursor-pointer select-none"
+                            >
+                                Change Password
+                            </button>
+                        </div>
+
+                        {/* 2FA */}
+                        <div className="flex justify-between items-center bg-muted/10 p-3.5 rounded-xl border border-border/40">
+                            <div>
+                                <span className="block text-sm font-semibold">Two-Factor Authentication (2FA)</span>
+                                <span className="text-xs text-muted-foreground">Secure your account by sending SMS verification tokens.</span>
+                            </div>
+                            <input
+                                type="checkbox"
+                                className="h-4.5 w-4.5 text-primary focus:ring-primary border-border bg-muted/30 rounded cursor-pointer"
+                                defaultChecked
+                            />
+                        </div>
+
+                        {/* Active Devices */}
+                        <div className="space-y-2.5">
+                            <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Active Session Devices</span>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-3 p-3 bg-muted/10 rounded-xl border border-border/30 text-xs">
+                                    <Smartphone className="h-4 w-4 text-emerald-400" />
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-foreground">iPhone 14 Pro Max (Primary)</div>
+                                        <div className="text-muted-foreground">Active Now • Bangalore, IN</div>
+                                    </div>
+                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Device Config */}
-                <div className="space-y-4 pt-2">
+                <div className="space-y-4 pt-2 border-t border-border mt-4">
                     <h3 className="font-bold text-base flex items-center gap-2 pb-2 border-b border-border">
                         <Navigation className="h-4.5 w-4.5 text-primary" /> Map defaults
                     </h3>
@@ -108,8 +159,7 @@ export default function UserSettings() {
                 </div>
 
                 {/* Footer info badge */}
-                <div className="border-t border-border pt-4 flex justify-between items-center text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Shield className="h-4 w-4 text-emerald-450" /> Hardware Security standard TLS 1.3</span>
+                <div className="border-t border-border pt-4 flex justify-end items-center text-xs text-muted-foreground">
                     <span className="text-emerald-400 font-semibold">Settings Saved</span>
                 </div>
             </div>

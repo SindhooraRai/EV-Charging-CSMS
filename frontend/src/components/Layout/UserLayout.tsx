@@ -92,7 +92,7 @@ export default function UserLayout() {
                         {/* Quick status */}
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Wallet Bal: $42.50
+                            Wallet Bal: ₹850.00
                         </div>
 
                         {/* Quick Notification Bell */}

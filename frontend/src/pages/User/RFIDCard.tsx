@@ -14,7 +14,7 @@ export default function RFIDCard() {
         rawUid: "04:6A:B2:8E:5C:30:91",
         holder: holderName,
         registeredOn: "Jul 10, 2026",
-        walletBalance: "$42.50"
+        walletBalance: "₹850.00"
     };
 
     const logs = [
