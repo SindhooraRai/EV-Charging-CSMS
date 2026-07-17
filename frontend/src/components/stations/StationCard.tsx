@@ -7,9 +7,10 @@ interface StationCardProps {
     station: Station;
     isSelected: boolean;
     onSelect: () => void;
+    userLocation?: [number, number] | null;
 }
 
-export default function StationCard({ station, isSelected, onSelect }: StationCardProps) {
+export default function StationCard({ station, isSelected, onSelect, userLocation }: StationCardProps) {
     // Determine status badge color
     const getStatusColor = (status: Station["status"]) => {
         switch (status) {
@@ -32,8 +33,8 @@ export default function StationCard({ station, isSelected, onSelect }: StationCa
             transition={{ duration: 0.2 }}
             onClick={onSelect}
             className={`p-4 rounded-xl border bg-card cursor-pointer flex flex-col justify-between transition-all select-none hover:shadow-md ${isSelected
-                    ? "border-primary/80 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                    : "border-card-border hover:border-slate-700/60"
+                ? "border-primary/80 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
+                : "border-card-border hover:border-slate-700/60"
                 }`}
         >
             <div className="space-y-2.5">
@@ -81,7 +82,10 @@ export default function StationCard({ station, isSelected, onSelect }: StationCa
                 <div className="flex gap-2 ml-auto">
                     {station.status === "available" && (
                         <a
-                            href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`}
+                            href={userLocation
+                                ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation[0]},${userLocation[1]}&destination=${station.lat},${station.lng}`
+                                : `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 bg-primary hover:opacity-90 transition-all rounded-md text-primary-foreground flex items-center justify-center shadow-xs"

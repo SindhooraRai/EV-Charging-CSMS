@@ -247,7 +247,7 @@ export default function Profile() {
                                         className="w-full bg-muted/20 border border-border rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary transition-all font-semibold"
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Email Address</label>
                                         <input
@@ -369,10 +369,10 @@ export default function Profile() {
                             </div>
 
                             {/* Submit Block */}
-                            <div className="pt-4 lg:pt-0 flex justify-end">
+                            <div className="pt-4 lg:pt-0 flex justify-center sm:justify-end w-full">
                                 <button
                                     type="submit"
-                                    className="px-5 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:opacity-90 transition-all glow-primary flex items-center gap-1 cursor-pointer select-none"
+                                    className="w-full sm:w-auto px-5 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:opacity-90 transition-all glow-primary flex items-center justify-center gap-1 cursor-pointer select-none"
                                 >
                                     {isSaved ? (
                                         <>

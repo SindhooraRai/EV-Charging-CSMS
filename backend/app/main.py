@@ -6,6 +6,7 @@ from sqlalchemy import text
 from app.database import engine, Base
 from app.config import settings
 from routers.auth import router as auth_router
+from routers.rfid import router as rfid_router
 from models.user import User  # Import User to register with SQLAlchemy metadata
 
 @asynccontextmanager
@@ -13,6 +14,16 @@ async def lifespan(app: FastAPI):
     # Standard DB bootstrap checks
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Bootstrap RFID fields on users table if they are missing
+        for col_name, col_type in [
+            ("rfid_uid", "VARCHAR(50) UNIQUE"),
+            ("rfid_linked_since", "TIMESTAMP WITH TIME ZONE"),
+            ("rfid_status", "VARCHAR(20) DEFAULT 'Active'")
+        ]:
+            try:
+                await conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+            except Exception:
+                pass
     yield
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
@@ -26,6 +37,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(rfid_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")

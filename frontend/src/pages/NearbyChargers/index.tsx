@@ -152,9 +152,9 @@ export default function NearbyChargers() {
             </div>
 
             {/* Main Panel grid layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[720px] lg:h-[calc(100vh-190px)] min-h-[500px]">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-[calc(100vh-190px)] min-h-0 lg:min-h-[500px]">
                 {/* Station search/list Sidebar panel */}
-                <div className="lg:col-span-2 flex flex-col h-full overflow-hidden order-2 lg:order-1">
+                <div className="lg:col-span-2 flex flex-col h-auto lg:h-full overflow-hidden order-2 lg:order-1">
                     <StationList
                         stations={filteredStations}
                         loading={loading}
@@ -164,11 +164,12 @@ export default function NearbyChargers() {
                         setFilterStatus={setFilterStatus}
                         selectedStationId={selectedStationId}
                         onSelectStation={handleSelectStationFromList}
+                        userLocation={userLocation}
                     />
                 </div>
 
                 {/* React Leaflet Interactive Map */}
-                <div className="lg:col-span-3 h-full min-h-[300px] lg:min-h-0 order-1 lg:order-2 rounded-2xl relative shadow-inner overflow-hidden border border-card-border">
+                <div className="lg:col-span-3 h-[300px] sm:h-[400px] lg:h-full order-1 lg:order-2 rounded-2xl relative shadow-inner overflow-hidden border border-card-border">
                     <LeafletMap
                         stations={filteredStations}
                         center={mapCenter}
