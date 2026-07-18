@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom
 // Layout Wrapper Modules
 import UserLayout from "./components/Layout/UserLayout";
 import AdminLayout from "./components/Layout/AdminLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Public pages
 import Landing from "./pages/Public/Landing";
@@ -50,34 +51,38 @@ export default function App() {
         </Route>
 
         {/* Driver/User Routes Tree */}
-        <Route path="/user" element={<UserLayout />}>
-          <Route index element={<Navigate to="/user/dashboard" replace />} />
-          <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="nearby" element={<NearbyChargers />} />
-          <Route path="stations/:id" element={<UserStationDetails />} />
-          <Route path="live" element={<LiveCharging />} />
-          <Route path="bill" element={<BillSummary />} />
-          <Route path="success" element={<PaymentSuccess />} />
-          <Route path="history" element={<ChargingHistory />} />
-          <Route path="rfid" element={<RFIDCard />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<UserSettings />} />
+        <Route element={<ProtectedRoute allowedRoles={["user", "driver"]} />}>
+          <Route path="/user" element={<UserLayout />}>
+            <Route index element={<Navigate to="/user/dashboard" replace />} />
+            <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="nearby" element={<NearbyChargers />} />
+            <Route path="stations/:id" element={<UserStationDetails />} />
+            <Route path="live" element={<LiveCharging />} />
+            <Route path="bill" element={<BillSummary />} />
+            <Route path="success" element={<PaymentSuccess />} />
+            <Route path="history" element={<ChargingHistory />} />
+            <Route path="rfid" element={<RFIDCard />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<UserSettings />} />
+          </Route>
         </Route>
 
         {/* C-level Admin / Operators Tree */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="stations" element={<AdminStations />} />
-          <Route path="stations/:id" element={<AdminStationDetails />} />
-          <Route path="live" element={<AdminLiveSessions />} />
-          <Route path="transactions" element={<AdminTransactions />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="alerts" element={<AdminAlerts />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="profile" element={<AdminProfile />} />
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="stations" element={<AdminStations />} />
+            <Route path="stations/:id" element={<AdminStationDetails />} />
+            <Route path="live" element={<AdminLiveSessions />} />
+            <Route path="transactions" element={<AdminTransactions />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="alerts" element={<AdminAlerts />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="profile" element={<AdminProfile />} />
+          </Route>
         </Route>
 
         {/* Global Fallback Route */}

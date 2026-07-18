@@ -1,18 +1,10 @@
-<<<<<<< HEAD
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.database import get_db
-from app.schemas.auth import LoginRequest, TokenResponse
-=======
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from schemas.auth import LoginRequest, TokenResponse
-from schemas.user import UserCreate, UserResponse
-from services.auth_service import AuthService
->>>>>>> 1784250e6207a02cdac8bea039cad4c9559ad5c8
+from app.schemas.auth import LoginRequest, TokenResponse
+from app.schemas.user import UserCreate, UserResponse
+from app.services.auth_service import AuthService
 
 router = APIRouter(
     prefix="/auth",
@@ -50,12 +42,6 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     "/login",
     response_model=TokenResponse
 )
-<<<<<<< HEAD
-async def login(
-    data: LoginRequest,
-    db: AsyncSession = Depends(get_db)
-):
-=======
 async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
     """
     Login endpoint.
@@ -68,8 +54,6 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
->>>>>>> 1784250e6207a02cdac8bea039cad4c9559ad5c8
     return TokenResponse(
         access_token=login_data["access_token"],
         token_type=login_data["token_type"],

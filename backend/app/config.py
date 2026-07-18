@@ -20,6 +20,10 @@ class Settings:
     OCPP_HOST: str = os.getenv("OCPP_HOST", "0.0.0.0")
     OCPP_PORT: int = int(os.getenv("OCPP_PORT", "9000"))
     
+    # Razorpay Configuration
+    RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "rzp_test_TF0PFUYdfIFow8")
+    RAZORPAY_KEY_SECRET: str = os.getenv("RAZORPAY_KEY_SECRET", "EYnI1V75iRxo2l0JsUGKPG8V")
+    
     # PostgreSQL Database Configuration
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")

@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.security import verify_password, create_access_token
+from app.utils.security import verify_password, create_access_token
 
 
 class AuthService:
@@ -23,7 +23,7 @@ class AuthService:
             # Try importing current user ORM model if teammate already defined it.
             # Otherwise, fall back to executing database query via SQLAlchemy Core text.
             try:
-                from models.user import User
+                from app.models.user import User
                 from sqlalchemy.future import select
                 stmt = select(User).where(User.email == email)
                 result = await db.execute(stmt)
@@ -106,7 +106,7 @@ class AuthService:
         Retrieves user information given a JWT token. First checks for ORM model
         definitions by the teammate, then falls back to a raw SQL query.
         """
-        from utils.security import decode_access_token
+        from app.utils.security import decode_access_token
         payload = decode_access_token(token)
         if not payload:
             return None
@@ -118,7 +118,7 @@ class AuthService:
 
         try:
             try:
-                from models.user import User
+                from app.models.user import User
                 from sqlalchemy.future import select
                 if user_id.isdigit():
                     stmt = select(User).where(User.id == int(user_id))
@@ -180,9 +180,9 @@ class AuthService:
         """
         Registers a new user inside the database after hashing their password.
         """
-        from models.user import User
+        from app.models.user import User
         from sqlalchemy.future import select
-        from utils.security import get_password_hash
+        from app.utils.security import get_password_hash
 
         # Check if email already registered
         stmt = select(User).where(User.email == email)

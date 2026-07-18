@@ -8,13 +8,13 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utils.security import (
+from app.utils.security import (
     get_password_hash,
     verify_password,
     create_access_token,
     decode_access_token,
 )
-from services.auth_service import AuthService
+from app.services.auth_service import AuthService
 
 
 class TestSecurityUtils(unittest.TestCase):

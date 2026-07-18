@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
 from app.database import get_db
-from services.auth_service import AuthService
+from app.services.auth_service import AuthService
+from app.middleware.auth import get_current_active_user
 
 logger = logging.getLogger(__name__)
 
@@ -44,24 +45,6 @@ class StatusResponse(BaseModel):
     status: str
     device_status: str
     last_scan_time: Optional[str]
-
-async def get_current_active_user(
-    authorization: Optional[str] = Header(None),
-    db: AsyncSession = Depends(get_db)
-):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or invalid authentication header"
-        )
-    token = authorization.split(" ")[1]
-    user = await AuthService.get_current_user(db, token)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session expired or invalid token"
-        )
-    return user
 
 @router.get("/card")
 async def get_card_details(

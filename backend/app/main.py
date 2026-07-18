@@ -9,6 +9,10 @@ from app.database import engine, Base
 
 # Import models so SQLAlchemy registers them
 from app.models.user import User
+from app.models.station import Station
+from app.models.transaction import Transaction
+from app.models.payment import Payment
+from app.models.rfid_card import RFIDCard
 
 # Import routers
 from app.routers import (
@@ -59,11 +63,11 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(stations.router)
-app.include_router(transactions.router)
-app.include_router(payments.router)
+app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(users.router, prefix=settings.API_V1_STR)
+app.include_router(stations.router, prefix=settings.API_V1_STR)
+app.include_router(transactions.router, prefix=settings.API_V1_STR)
+app.include_router(payments.router, prefix=settings.API_V1_STR)
 
 app.include_router(
     rfid_router,
