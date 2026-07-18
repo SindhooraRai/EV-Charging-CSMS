@@ -13,7 +13,7 @@ export default function NearbyChargers() {
     const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
     const [mapZoom, setMapZoom] = useState<number>(initialZoom);
     const [selectedStationId, setSelectedStationId] = useState<number | null>(null);
-    
+
     // Lists and state filters
     const [stations, setStations] = useState<Station[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -89,7 +89,7 @@ export default function NearbyChargers() {
 
     // Filter station list outputs
     const filteredStations = stations.filter(station => {
-        const matchesWord = 
+        const matchesWord =
             station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             station.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
             station.address.toLowerCase().includes(searchQuery.toLowerCase());
@@ -137,7 +137,7 @@ export default function NearbyChargers() {
                         <Compass className={`h-4 w-4 text-primary ${locatingUser ? "animate-spin" : ""}`} />
                         <span>{locatingUser ? "Locating..." : "My Coordinates"}</span>
                     </button>
-                    
+
                     <button
                         onClick={() => {
                             setMapCenter(defaultCenter);
@@ -152,9 +152,9 @@ export default function NearbyChargers() {
             </div>
 
             {/* Main Panel grid layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[720px] lg:h-[calc(100vh-190px)] min-h-[500px]">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-auto lg:h-[calc(100vh-190px)] min-h-0 lg:min-h-[500px]">
                 {/* Station search/list Sidebar panel */}
-                <div className="lg:col-span-2 flex flex-col h-full overflow-hidden order-2 lg:order-1">
+                <div className="lg:col-span-2 flex flex-col h-auto lg:h-full overflow-hidden order-2 lg:order-1">
                     <StationList
                         stations={filteredStations}
                         loading={loading}
@@ -164,27 +164,29 @@ export default function NearbyChargers() {
                         setFilterStatus={setFilterStatus}
                         selectedStationId={selectedStationId}
                         onSelectStation={handleSelectStationFromList}
+                        userLocation={userLocation}
                     />
                 </div>
 
                 {/* React Leaflet Interactive Map */}
-                <div className="lg:col-span-3 h-full min-h-[300px] lg:min-h-0 order-1 lg:order-2 rounded-2xl relative shadow-inner overflow-hidden border border-card-border">
+                <div className="lg:col-span-3 h-[300px] sm:h-[400px] lg:h-full order-1 lg:order-2 rounded-2xl relative shadow-inner overflow-hidden border border-card-border">
                     <LeafletMap
                         stations={filteredStations}
                         center={mapCenter}
                         zoom={mapZoom}
                         selectedStationId={selectedStationId}
                         onSelectStation={handleSelectStationFromMap}
+                        userLocation={userLocation}
                     />
-                    
-                    {/* Floating Info alert */}
-                    <div className="absolute bottom-4 left-4 z-[1000] bg-slate-900/90 border border-slate-755 hover:border-slate-700/80 p-2.5 rounded-xl shadow-2xl backdrop-blur-md max-w-[280px] pointer-events-none select-none transition-all hidden md:flex items-start gap-2.5">
-                        <Info className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
-                        <div>
-                            <div className="text-[10px] font-bold text-white uppercase tracking-wider">Karnataka EV Grid Map</div>
-                            <div className="text-[9px] text-slate-400 leading-normal mt-0.5">
-                                Select chargers to view detailed connectors power, charging schedules, and trigger live directions.
-                            </div>
+                </div>
+
+                {/* Floating Info alert */}
+                <div className="absolute bottom-4 left-4 z-[1000] bg-slate-900/90 border border-slate-755 hover:border-slate-700/80 p-2.5 rounded-xl shadow-2xl backdrop-blur-md max-w-[280px] pointer-events-none select-none transition-all hidden md:flex items-start gap-2.5">
+                    <Info className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                        <div className="text-[10px] font-bold text-white uppercase tracking-wider">Karnataka EV Grid Map</div>
+                        <div className="text-[9px] text-slate-400 leading-normal mt-0.5">
+                            Select chargers to view detailed connectors power, charging schedules, and trigger live directions.
                         </div>
                     </div>
                 </div>

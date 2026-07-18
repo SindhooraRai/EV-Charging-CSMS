@@ -92,7 +92,7 @@ export default function UserLayout() {
                         {/* Quick status */}
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Wallet Bal: $42.50
+                            Wallet Bal: ₹850.00
                         </div>
 
                         {/* Quick Notification Bell */}
@@ -103,10 +103,24 @@ export default function UserLayout() {
 
                         <Link to="/user/profile" className="flex items-center gap-2 group">
                             <div className="h-8 w-8 rounded-full bg-primary/20 border border-primary/45 grid place-items-center text-primary text-xs font-bold font-[family-name:var(--font-display)]">
-                                JD
+                                {(() => {
+                                    const userStr = localStorage.getItem("user");
+                                    const user = userStr ? JSON.parse(userStr) : null;
+                                    const name = user?.name || "Default User";
+                                    return name
+                                        .split(" ")
+                                        .map((n: string) => n[0])
+                                        .join("")
+                                        .toUpperCase()
+                                        .slice(0, 2) || "U";
+                                })()}
                             </div>
                             <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors max-sm:hidden">
-                                John Doe
+                                {(() => {
+                                    const userStr = localStorage.getItem("user");
+                                    const user = userStr ? JSON.parse(userStr) : null;
+                                    return user?.name || "Default User";
+                                })()}
                             </span>
                         </Link>
                     </div>

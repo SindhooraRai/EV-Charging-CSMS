@@ -13,6 +13,7 @@ interface StationListProps {
     setFilterStatus: (status: "all" | "available" | "charging" | "offline") => void;
     selectedStationId: number | null;
     onSelectStation: (station: Station) => void;
+    userLocation?: [number, number] | null;
 }
 
 // Visual Shimmer Loader representation to simulate live server sync loads
@@ -46,7 +47,8 @@ export default function StationList({
     filterStatus,
     setFilterStatus,
     selectedStationId,
-    onSelectStation
+    onSelectStation,
+    userLocation
 }: StationListProps) {
     const filterOptions: { label: string; value: typeof filterStatus; countColor: string }[] = [
         { label: "All", value: "all", countColor: "bg-slate-800 text-slate-300" },
@@ -76,8 +78,8 @@ export default function StationList({
                         key={opt.value}
                         onClick={() => setFilterStatus(opt.value)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 uppercase tracking-wider ${filterStatus === opt.value
-                                ? "bg-primary text-primary-foreground border-transparent shadow-xs shadow-primary/10"
-                                : "border-card-border bg-card text-slate-400 hover:text-slate-200 hover:border-slate-800"
+                            ? "bg-primary text-primary-foreground border-transparent shadow-xs shadow-primary/10"
+                            : "border-card-border bg-card text-slate-400 hover:text-slate-200 hover:border-slate-800"
                             }`}
                     >
                         <span>{opt.label}</span>
@@ -108,6 +110,7 @@ export default function StationList({
                                         station={st}
                                         isSelected={selectedStationId === st.id}
                                         onSelect={() => onSelectStation(st)}
+                                        userLocation={userLocation}
                                     />
                                 </motion.div>
                             ))

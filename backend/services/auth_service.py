@@ -29,12 +29,15 @@ class AuthService:
                 result = await db.execute(stmt)
                 user_obj = result.scalars().first()
                 if user_obj:
-                    # support dynamic field names (e.g. hashed_password or password_hash)
-                    hashed_pw = getattr(user_obj, "hashed_password", None) or getattr(user_obj, "password_hash", None)
+                    # support dynamic field names (e.g. hashed_password, password_hash, or password)
+                    hashed_pw = getattr(user_obj, "hashed_password", None) or getattr(user_obj, "password_hash", None) or getattr(user_obj, "password", None)
                     if hashed_pw and verify_password(password_plain, hashed_pw):
                         return {
                             "id": getattr(user_obj, "id", None),
+                            "name": getattr(user_obj, "name", None),
                             "email": getattr(user_obj, "email", None),
+                            "phone": getattr(user_obj, "phone", None),
+                            "vehicle": getattr(user_obj, "vehicle", None),
                             "role": getattr(user_obj, "role", "user"),
                             "is_active": getattr(user_obj, "is_active", True)
                         }
@@ -42,15 +45,18 @@ class AuthService:
                 pass
 
             # Fallback raw SQL query
-            query = text("SELECT id, email, hashed_password, role, is_active FROM users WHERE email = :email")
+            query = text("SELECT * FROM users WHERE email = :email")
             result = await db.execute(query, {"email": email})
             row = result.mappings().first()
             if row:
-                hashed_pw = row.get("hashed_password") or row.get("password_hash")
+                hashed_pw = row.get("hashed_password") or row.get("password_hash") or row.get("password")
                 if hashed_pw and verify_password(password_plain, hashed_pw):
                     return {
                         "id": row.get("id"),
+                        "name": row.get("name"),
                         "email": row.get("email"),
+                        "phone": row.get("phone"),
+                        "vehicle": row.get("vehicle"),
                         "role": row.get("role", "user"),
                         "is_active": row.get("is_active", True)
                     }
@@ -86,7 +92,10 @@ class AuthService:
             "token_type": "bearer",
             "user": {
                 "id": user.get("id"),
+                "name": user.get("name"),
                 "email": user["email"],
+                "phone": user.get("phone"),
+                "vehicle": user.get("vehicle"),
                 "role": user.get("role", "user")
             }
         }
@@ -120,7 +129,10 @@ class AuthService:
                 if user_obj:
                     return {
                         "id": getattr(user_obj, "id", None),
+                        "name": getattr(user_obj, "name", None),
                         "email": getattr(user_obj, "email", None),
+                        "phone": getattr(user_obj, "phone", None),
+                        "vehicle": getattr(user_obj, "vehicle", None),
                         "role": getattr(user_obj, "role", "user"),
                         "is_active": getattr(user_obj, "is_active", True)
                     }
@@ -129,10 +141,10 @@ class AuthService:
 
             # Fallback raw SQL query
             if user_id.isdigit():
-                query = text("SELECT id, email, role, is_active FROM users WHERE id = :id")
+                query = text("SELECT id, name, email, phone, vehicle, role, is_active FROM users WHERE id = :id")
                 params = {"id": int(user_id)}
             else:
-                query = text("SELECT id, email, role, is_active FROM users WHERE email = :email")
+                query = text("SELECT id, name, email, phone, vehicle, role, is_active FROM users WHERE email = :email")
                 params = {"email": user_id}
 
             result = await db.execute(query, params)
@@ -140,7 +152,10 @@ class AuthService:
             if row:
                 return {
                     "id": row.get("id"),
+                    "name": row.get("name"),
                     "email": row.get("email"),
+                    "phone": row.get("phone"),
+                    "vehicle": row.get("vehicle"),
                     "role": row.get("role", "user"),
                     "is_active": row.get("is_active", True)
                 }
@@ -151,4 +166,43 @@ class AuthService:
             logger.warning(f"Error fetching current user from database: {e}")
 
         return None
+
+    @staticmethod
+    async def register_user(
+        db: AsyncSession,
+        name: str,
+        email: str,
+        password_plain: str,
+        phone: str,
+        vehicle: Optional[str] = None,
+        role: str = "user"
+    ) -> Any:
+        """
+        Registers a new user inside the database after hashing their password.
+        """
+        from models.user import User
+        from sqlalchemy.future import select
+        from utils.security import get_password_hash
+
+        # Check if email already registered
+        stmt = select(User).where(User.email == email)
+        result = await db.execute(stmt)
+        if result.scalars().first():
+            return None
+
+        # Hash credentials and persist
+        hashed_password = get_password_hash(password_plain)
+        new_user = User(
+            name=name,
+            email=email,
+            password=hashed_password,
+            phone=phone,
+            vehicle=vehicle,
+            role=role
+        )
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
+        return new_user
 
