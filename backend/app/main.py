@@ -21,6 +21,7 @@ from app.routers import (
     stations,
     transactions,
     payments,
+    websocket as ws_router,
 )
 from app.routers.rfid import router as rfid_router
 
@@ -60,7 +61,16 @@ async def lifespan(app: FastAPI):
                     text(f"ALTER TABLE stations ADD COLUMN {col_name} {col_type}")
                 )
             except Exception:
+                # Ignore if column already exists
                 pass
+
+        # Add base price per kWh to stations if it doesn't exist
+        try:
+            await conn.execute(
+                text("ALTER TABLE stations ADD COLUMN price_per_kwh FLOAT DEFAULT 15.0")
+            )
+        except Exception:
+            pass
 
     yield
 
@@ -85,6 +95,7 @@ app.include_router(users.router, prefix=settings.API_V1_STR)
 app.include_router(stations.router, prefix=settings.API_V1_STR)
 app.include_router(transactions.router, prefix=settings.API_V1_STR)
 app.include_router(payments.router, prefix=settings.API_V1_STR)
+app.include_router(ws_router.router, prefix=settings.API_V1_STR)
 
 app.include_router(
     rfid_router,

@@ -23,9 +23,11 @@ export default function LiveCharging() {
     const [stopping, setStopping] = useState(false);
 
     useEffect(() => {
-        let interval: any;
-        if (isCharging) {
-            interval = setInterval(() => {
+        if (!isCharging) return;
+
+        if (!transactionId) {
+            // Local simulation fallback if page was accessed directly without a transaction
+            const interval = setInterval(() => {
                 setSoc((prev) => {
                     if (prev >= 100) {
                         setIsCharging(false);
@@ -35,12 +37,58 @@ export default function LiveCharging() {
                 });
                 setEnergyDelivered((prev) => +(prev + 0.12).toFixed(2));
                 setSeconds((prev) => prev + 1);
-                // Slightly randomizing charging power to look extremely dynamic and real!
                 setPower((prev) => +(prev + (Math.random() - 0.5) * 2).toFixed(1));
             }, 1000);
+            return () => clearInterval(interval);
         }
-        return () => clearInterval(interval);
-    }, [isCharging]);
+
+        // Establish real-time WebSocket connection to backend
+        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const apiHost = API_URL.replace(/^https?:\/\//, "");
+        const wsUrl = `${wsProtocol}//${apiHost}/ws/charging/${transactionId}`;
+
+        console.log("Connecting to telemetry WebSocket:", wsUrl);
+        const ws = new WebSocket(wsUrl);
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                setSoc(data.soc);
+                setPower(data.power);
+                setEnergyDelivered(data.energy_delivered);
+                setSeconds(data.seconds);
+
+                if (data.status === "completed") {
+                    setIsCharging(false);
+                    // Automatically redirect to bill overview
+                    navigate("/user/bill", {
+                        state: {
+                            transactionId: transactionId,
+                            stationName: stationName,
+                            energy: data.energy_delivered,
+                            time: formatTime(data.seconds),
+                            rate: pricePerKwh,
+                            amount: Math.round(data.energy_delivered * pricePerKwh * 100) / 100
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Error parsing telemetry frame:", err);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log("Telemetry WebSocket connection closed");
+        };
+
+        ws.onerror = (error) => {
+            console.error("Telemetry WebSocket error:", error);
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [isCharging, transactionId, navigate, stationName, pricePerKwh]);
 
     const formatTime = (totalSeconds: number) => {
         const hrs = Math.floor(totalSeconds / 3600);
