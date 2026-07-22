@@ -45,6 +45,23 @@ async def lifespan(app: FastAPI):
                 # Ignore if column already exists
                 pass
 
+        # Add new columns to stations table if they don't exist
+        for col_name, col_type in [
+            ("city", "VARCHAR(50)"),
+            ("address", "VARCHAR(255)"),
+            ("connectors", "JSON"),
+            ("available_chargers", "INTEGER DEFAULT 0"),
+            ("total_chargers", "INTEGER DEFAULT 0"),
+            ("rating", "FLOAT DEFAULT 0.0"),
+            ("last_updated", "VARCHAR(50) DEFAULT 'Just now'")
+        ]:
+            try:
+                await conn.execute(
+                    text(f"ALTER TABLE stations ADD COLUMN {col_name} {col_type}")
+                )
+            except Exception:
+                pass
+
     yield
 
 

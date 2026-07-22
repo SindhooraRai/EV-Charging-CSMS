@@ -2,6 +2,7 @@ from sqlalchemy import (
     Integer,
     String,
     Float,
+    JSON,
 )
 
 from sqlalchemy.orm import Mapped, mapped_column
@@ -43,3 +44,42 @@ class Station(Base):
         default="Available",
         nullable=False
     )
+
+    city: Mapped[str] = mapped_column(
+        String(50),
+        nullable=True
+    )
+
+    address: Mapped[str] = mapped_column(
+        String(255),
+        nullable=True
+    )
+
+    connectors: Mapped[list] = mapped_column(
+        JSON,
+        nullable=True
+    )
+
+    available_chargers: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False
+    )
+
+    total_chargers: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False
+    )
+
+    rating: Mapped[float] = mapped_column(
+        Float,
+        default=0.0,
+        nullable=False
+    )
+
+    last_updated: Mapped[str] = mapped_column(
+        String(50),
+        default="Just now",
+        nullable=False
+    )

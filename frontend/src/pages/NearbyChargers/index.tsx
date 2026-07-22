@@ -5,6 +5,8 @@ import StationList from "../../components/stations/StationList";
 import { Compass, Info, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+
 export default function NearbyChargers() {
     // Initial center is set to Udupi-Mangaluru Coastal Region coordinates
     const defaultCenter: [number, number] = [13.12, 74.85];
@@ -22,36 +24,47 @@ export default function NearbyChargers() {
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
     const [locatingUser, setLocatingUser] = useState(false);
 
-    // ==========================================
-    // FUTURE BACKEND INTEGRATION / FASTAPI HOOK
-    // ==========================================
-    // To fetch charging stations from your FastAPI backend later:
-    // 
-    // useEffect(() => {
-    //     const fetchStations = async () => {
-    //         setLoading(true);
-    //         try {
-    //             const response = await fetch("http://your-fastapi-backend-url/api/stations");
-    //             const data = await response.json();
-    //             setStations(data);
-    //         } catch (error) {
-    //             console.error("Failed to load stations:", error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchStations();
-    // }, []);
-    // ==========================================
-
-    // Loading Simulation (Slightly delays loading to show visual SaaS Skeletons)
+    // Fetch charging stations from our FastAPI backend
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setStations(mockStations);
-            setLoading(false);
-        }, 1200);
-
-        return () => clearTimeout(timer);
+        const fetchStations = async () => {
+            setLoading(true);
+            try {
+                const token = localStorage.getItem("token");
+                const headers: Record<string, string> = {};
+                if (token) {
+                    headers["Authorization"] = `Bearer ${token}`;
+                }
+                const response = await fetch(`${API_URL}/stations`, { headers });
+                if (response.ok) {
+                    const data = await response.json();
+                    const mappedData: Station[] = data.map((s: any) => ({
+                        id: s.id,
+                        name: s.station_name,
+                        city: s.city || "",
+                        address: s.address || "",
+                        status: s.status.toLowerCase() as Station["status"],
+                        pricePerKwh: s.price_per_kwh,
+                        connectors: s.connectors || [],
+                        availableChargers: s.available_chargers,
+                        totalChargers: s.total_chargers,
+                        rating: s.rating,
+                        lat: s.latitude,
+                        lng: s.longitude,
+                        lastUpdated: s.last_updated
+                    }));
+                    setStations(mappedData);
+                } else {
+                    console.error("Failed to fetch stations:", response.statusText);
+                    setStations(mockStations);
+                }
+            } catch (error) {
+                console.error("Failed to load stations:", error);
+                setStations(mockStations);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStations();
     }, []);
 
     // Try reading browser geolocation API on startup

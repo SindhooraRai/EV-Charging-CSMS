@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -13,6 +12,15 @@ class TransactionCreate(TransactionBase):
     pass
 
 
+class TransactionStartRequest(BaseModel):
+    station_id: int
+
+
+class TransactionStopRequest(BaseModel):
+    transaction_id: int
+    energy_used: float
+
+
 class TransactionResponse(TransactionBase):
     id: int
     end_time: datetime | None
@@ -20,4 +28,4 @@ class TransactionResponse(TransactionBase):
     amount: float
     payment_status: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
